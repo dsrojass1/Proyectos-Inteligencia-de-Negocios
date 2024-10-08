@@ -34,7 +34,6 @@ class RetrainData(BaseModel):
     Textos_espanol: List[str]
     sdg: List[int]
 
-# Endpoint 1: Predicción
 @app.post("/predict")
 def predict(instances: List[InstanceData]):
     # Extraer los textos para la predicción
@@ -46,8 +45,17 @@ def predict(instances: List[InstanceData]):
     # Realizar las predicciones usando el pipeline cargado
     predictions = pipeline.predict(texts_df)
     
-    # Retornar las predicciones
-    return {"sdg": predictions.tolist()}  # Convertir a lista si es necesario
+    # Obtener las probabilidades para cada predicción
+    probabilities = pipeline.predict_proba(texts_df)
+    
+    # Formatear las probabilidades de forma legible
+    probabilities_list = probabilities.tolist()
+    
+    # Retornar las predicciones y sus probabilidades
+    return {
+        "sdg": predictions.tolist(),  # Convertir las predicciones a lista si es necesario
+        "probabilities": probabilities_list  # Retornar las probabilidades
+    }
 
 # Endpoint 2: Re-entrenamiento
 @app.post("/retrain")
