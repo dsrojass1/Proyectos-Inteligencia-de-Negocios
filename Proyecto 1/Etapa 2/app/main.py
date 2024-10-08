@@ -61,43 +61,58 @@ def predict(instances: List[InstanceData]):
 # Endpoint 2: Re-entrenamiento
 @app.post("/retrain")
 def retrain(data: RetrainData):
-    # Convertir los datos en un DataFrame
-    df = pd.DataFrame({'Textos_espanol': data.Textos_espanol, 'sdg': data.sdg})
+    try:
+        # Cargar los datos del archivo Excel 'ODScat_345.xlsx'
+        excel_df = pd.read_excel('ODScat_345.xlsx')
+        
+        # Asegurar que el archivo tenga las columnas necesarias
+        if 'Textos_espanol' not in excel_df.columns or 'sdg' not in excel_df.columns:
+            return {"error": "El archivo Excel no contiene las columnas necesarias."}
+        
+        # Convertir los datos recibidos en un DataFrame
+        input_df = pd.DataFrame({'Textos_espanol': data.Textos_espanol, 'sdg': data.sdg})
+        
+        # Combinar los datos del Excel con los nuevos datos del input
+        combined_df = pd.concat([excel_df, input_df], ignore_index=True)
+        
+        # Separar características y variable objetivo
+        X = combined_df['Textos_espanol']
+        y = combined_df['sdg']
+        
+        # Dividir los datos en entrenamiento y validación
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        
+        # Re-entrenar el pipeline con los datos combinados
+        pipeline.fit(X_train, y_train)
+        
+        # Realizar predicciones en el conjunto de prueba
+        y_pred = pipeline.predict(X_test)
+        
+        # Calcular las métricas
+        precision = precision_score(y_test, y_pred, average='macro')
+        recall = recall_score(y_test, y_pred, average='macro')
+        f1 = f1_score(y_test, y_pred, average='macro')
+        
+        # Generar matriz de confusión
+        confusion_mat = confusion_matrix(y_test, y_pred)
+        
+        # Guardar el nuevo pipeline entrenado (sobreescribir el archivo)
+        import dill
+        with open('pipeline_logistic_reg.pkl', 'wb') as f:
+            dill.dump(pipeline, f)
+        
+        # Retornar las métricas y la matriz de confusión
+        return {
+            "precision": precision,
+            "recall": recall,
+            "f1_score": f1,
+            "confusion_matrix": confusion_mat.tolist()
+        }
     
-    # Separar características y variable objetivo
-    X = df['Textos_espanol']
-    y = df['sdg']
+    except Exception as e:
+        return {"error": str(e)}
     
-    # Dividir los datos en entrenamiento y validación
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    # Re-entrenar el pipeline con los nuevos datos
-    pipeline.fit(X_train, y_train)
-    
-    # Realizar predicciones en el conjunto de prueba
-    y_pred = pipeline.predict(X_test)
-    
-    # Calcular las métricas
-    precision = precision_score(y_test, y_pred, average='macro')
-    recall = recall_score(y_test, y_pred, average='macro')
-    f1 = f1_score(y_test, y_pred, average='macro')
-
-    # Generar matriz de confusión
-    confusion_mat = confusion_matrix(y_test, y_pred)
-    
-    # Guardar el nuevo pipeline entrenado (sobreescribir el archivo)
-    import dill
-    with open('pipeline_logistic_reg.pkl', 'wb') as f:
-        dill.dump(pipeline, f)
-    
-    # Retornar las métricas y la matriz de confusión
-    return {
-        "precision": precision,
-        "recall": recall,
-        "f1_score": f1,
-        "confusion_matrix": confusion_mat.tolist()
-    }
-
 # Endpoint 3: Reestablecer al modelo de la etapa 1
 @app.post("/reset")
 def reset_pipeline():
