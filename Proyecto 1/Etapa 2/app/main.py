@@ -7,6 +7,7 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.model_selection import train_test_split
 import dill
 from sklearn.metrics import confusion_matrix
+import subprocess
 
 # Definir la aplicación FastAPI
 app = FastAPI()
@@ -96,5 +97,26 @@ def retrain(data: RetrainData):
         "f1_score": f1,
         "confusion_matrix": confusion_mat.tolist()
     }
+
+# Endpoint 3: Reestablecer al modelo de la etapa 1
+@app.post("/reset")
+def reset_pipeline():
+    try:
+        # Ejecutar el script 'pipeline_logistic_reg.py' para regenerar el pipeline original
+        result = subprocess.run(["python", "pipeline_logistic_reg.py"], capture_output=True, text=True)
+        
+        # Verificar si hubo algún error en la ejecución del script
+        if result.returncode != 0:
+            return {"error": "Error al ejecutar el script 'pipeline_logistic_reg.py'.", "details": result.stderr}
+
+        # Cargar el pipeline nuevamente desde el archivo regenerado 'pipeline_logistic_reg.pkl'
+        with open('pipeline_logistic_reg.pkl', 'rb') as f:
+            global pipeline
+            pipeline = dill.load(f)
+        
+        return {"message": "Pipeline reiniciado exitosamente.", "details": result.stdout}
+
+    except Exception as e:
+        return {"error": "Ocurrió un error al intentar reiniciar el pipeline.", "details": str(e)}
 
 # Iniciar el servidor: uvicorn main:app --reload
