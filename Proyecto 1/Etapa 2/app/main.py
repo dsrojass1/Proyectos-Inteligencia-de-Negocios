@@ -6,6 +6,7 @@ import pandas as pd
 from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.model_selection import train_test_split
 import dill
+from sklearn.metrics import confusion_matrix
 
 # Definir la aplicación FastAPI
 app = FastAPI()
@@ -71,17 +72,21 @@ def retrain(data: RetrainData):
     precision = precision_score(y_test, y_pred, average='macro')
     recall = recall_score(y_test, y_pred, average='macro')
     f1 = f1_score(y_test, y_pred, average='macro')
+
+    # Generar matriz de confusión
+    confusion_mat = confusion_matrix(y_test, y_pred)
     
     # Guardar el nuevo pipeline entrenado (sobreescribir el archivo)
     import dill
     with open('pipeline_logistic_reg.pkl', 'wb') as f:
         dill.dump(pipeline, f)
     
-    # Retornar las métricas
+    # Retornar las métricas y la matriz de confusión
     return {
         "precision": precision,
         "recall": recall,
-        "f1_score": f1
+        "f1_score": f1,
+        "confusion_matrix": confusion_mat.tolist()
     }
 
 # Iniciar el servidor: uvicorn main:app --reload
