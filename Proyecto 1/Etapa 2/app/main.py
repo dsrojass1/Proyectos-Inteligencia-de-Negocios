@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 import dill
 from sklearn.metrics import confusion_matrix
 import subprocess
+import sys
 
 # Definir la aplicación FastAPI
 app = FastAPI()
@@ -118,7 +119,7 @@ def retrain(data: RetrainData):
 def reset_pipeline():
     try:
         # Ejecutar el script 'pipeline_logistic_reg.py' para regenerar el pipeline original
-        result = subprocess.run(["python", "pipeline_logistic_reg.py"], capture_output=True, text=True)
+        result = subprocess.run([sys.executable, "pipeline_logistic_reg.py"], capture_output=True, text=True)
         
         # Verificar si hubo algún error en la ejecución del script
         if result.returncode != 0:
