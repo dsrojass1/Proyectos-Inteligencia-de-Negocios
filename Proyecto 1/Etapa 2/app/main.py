@@ -9,9 +9,24 @@ import dill
 from sklearn.metrics import confusion_matrix
 import subprocess
 import sys
+from fastapi.middleware.cors import CORSMiddleware
+
 
 # Definir la aplicación FastAPI
 app = FastAPI()
+
+
+origins = [
+    "http://localhost:3000",  # reemplaza con la URL de tu aplicación React
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Cargar el pipeline desde un archivo local
 PIPELINE_PATH = './pipeline_logistic_reg.pkl'
