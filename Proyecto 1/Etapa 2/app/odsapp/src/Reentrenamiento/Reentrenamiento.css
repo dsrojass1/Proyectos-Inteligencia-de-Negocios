@@ -1,0 +1,62 @@
+.app-container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #44a4e2;
+}
+
+.reen-container {
+  background-color: #4e9a41;
+  padding: 40px;
+  border-radius: 20px;
+  width: 80%;
+  max-width: 900px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  color: white;
+  text-align: center;
+  margin-bottom: 20px;
+  letter-spacing: -1px;
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 1000;
+  font-style: normal;
+}
+
+.reen-text-box {
+  color: white;
+  text-align: center;
+  align-items: center;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.upload-label {
+  cursor: pointer;
+}
+
+.submit-button {
+  margin-top: 20px;
+}
+
+#text {
+  width: 400px;
+  text-align: right;
+}
+p {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-size: 1.3rem;
+  color: white;
+}
+#bb {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  height: 30px;
+  width: 150px;
+  border-radius: 50px;
+  background-color: #efeeff;
+  border: none;
+}
