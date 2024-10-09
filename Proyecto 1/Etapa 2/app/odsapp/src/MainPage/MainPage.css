@@ -1,32 +1,83 @@
 .left-side {
-  background-color: #3e8e41; /* Color de fondo verde */
+  background-color: #328028; /* Color de fondo verde */
   display: flex;
-  font-family: "Barlow Condensed", sans-serif;
-  font-weight: 700;
-  font-style: normal;
+
   justify-content: center;
   padding: 20px;
   height: 100%;
-  width: 35%;
+  width: 30%;
 }
+h1 {
+  font-size: 2.5rem;
 
-.content {
-  font-family: "Barlow Condensed", sans-serif;
-  font-weight: 700;
+  letter-spacing: -1px;
+
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 1000;
   font-style: normal;
+}
+h3 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-size: 1.3rem;
+}
+p {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-size: 1.3rem;
+}
+.content {
+  margin: 40px;
+
   text-align: center;
   color: white;
 }
 
 .title {
-  font-family: "Barlow Condensed", sans-serif;
-  font-weight: 700;
-  font-style: normal;
   font-size: 2.5rem;
   margin-bottom: 10px;
 }
 
-.action-button {
-  width: 200px;
+#azul {
+  background-color: #44a4e2;
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-size: 1.3rem;
+  color: white;
+  font-weight: 700;
+  border: none;
   margin: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  width: 200px;
+  height: 50px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Sombra sutil */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transición para suavizar */
+}
+
+#azul:hover {
+  transform: translateY(-5px); /* Se eleva ligeramente */
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2); /* Mayor sombra al pasar el mouse */
+}
+
+#blanco {
+  background-color: white;
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-size: 1.3rem;
+  color: #1a77cc;
+  font-weight: 700;
+  border: none;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  width: 200px;
+  height: 50px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Sombra sutil */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transición para suavizar */
+}
+
+#blanco:hover {
+  transform: translateY(-5px); /* Se eleva ligeramente */
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2); /* Mayor sombra al pasar el mouse */
 }
