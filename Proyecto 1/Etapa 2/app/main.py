@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 import joblib
@@ -7,12 +8,20 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.model_selection import train_test_split
 import dill
 from sklearn.metrics import confusion_matrix
+
 import subprocess
 import sys
 
 # Definir la aplicación FastAPI
 app = FastAPI()
-
+# Permitir solicitudes desde cualquier origen
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Solo permitir solicitudes desde React
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # Cargar el pipeline desde un archivo local
 PIPELINE_PATH = './pipeline_logistic_reg.pkl'
 

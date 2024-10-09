@@ -8,6 +8,7 @@ function Reentrenamiento() {
   const [file, setFile] = useState(null);
   const [jsonData, setJsonData] = useState(null);
   const [uploadSuccess, setUploadSuccess] = useState(false); // Nuevo estado para mensaje de éxito
+  const [retrainResult, setRetrainResult] = useState(null); // Nuevo estado para guardar resultados del reentrenamiento
   const navigate = useNavigate();
 
   // Manejar la carga del archivo CSV
@@ -20,8 +21,8 @@ function Reentrenamiento() {
       complete: (result) => {
         // Convertimos el CSV en un objeto JSON
         const jsonResult = result.data.map(([text, ods]) => ({
-          text,
-          ods,
+          Textos_espanol: text,
+          sdg: parseInt(ods), // Asegurar que 'sdg' sea un número
         }));
         setJsonData(jsonResult);
         setUploadSuccess(true); // Cambia a verdadero cuando se sube correctamente
@@ -31,10 +32,30 @@ function Reentrenamiento() {
     });
   };
 
-  const handleSubmit = () => {
+  // Función para abrir el input de archivo al hacer clic en el botón
+  const openFileDialog = () => {
+    document.getElementById("fileUpload").click();
+  };
+
+  // Enviar el JSON al endpoint de reentrenamiento
+  const handleSubmit = async () => {
     if (jsonData) {
-      console.log("Datos en JSON:", jsonData);
-      // Aquí puedes manejar la lógica para enviar el JSON al servidor
+      try {
+        const response = await fetch("http://127.0.0.1:8000/retrain", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            Textos_espanol: jsonData.map((item) => item.Textos_espanol),
+            sdg: jsonData.map((item) => item.sdg),
+          }),
+        });
+        const result = await response.json();
+        setRetrainResult(result); // Guardar las métricas del reentrenamiento
+      } catch (error) {
+        console.error("Error durante el reentrenamiento:", error);
+      }
     }
   };
 
@@ -67,11 +88,10 @@ function Reentrenamiento() {
           <br></br>
           <Col sm={4} className="text-center" style={{ textAlign: "center" }}>
             <Form.Group>
-              <Form.Label className="upload-label" htmlFor="fileUpload">
-                <Button id="bb" htmlFor="fileUpload">
-                  Cargar archivo
-                </Button>
-              </Form.Label>
+              {/* Usamos el onClick para disparar el diálogo de selección de archivos */}
+              <Button id="bb" onClick={openFileDialog}>
+                Cargar archivo
+              </Button>
               <Form.Control
                 type="file"
                 id="fileUpload"
@@ -103,6 +123,32 @@ function Reentrenamiento() {
             Enviar
           </Button>
         </Row>
+
+        {/* Mostrar resultados del reentrenamiento */}
+        {retrainResult && (
+          <Row className="justify-content-center">
+            <Col sm={12}>
+              <h3 style={{ color: "white", textAlign: "center" }}>
+                Resultados del Reentrenamiento:
+              </h3>
+              <p style={{ color: "white", textAlign: "center" }}>
+                Precisión: {retrainResult.precision}
+              </p>
+              <p style={{ color: "white", textAlign: "center" }}>
+                Recall: {retrainResult.recall}
+              </p>
+              <p style={{ color: "white", textAlign: "center" }}>
+                F1-Score: {retrainResult.f1_score}
+              </p>
+              <p style={{ color: "white", textAlign: "center" }}>
+                Matriz de confusión:{" "}
+                {retrainResult.confusion_matrix.map((row, idx) => (
+                  <span key={idx}>{row.join(", ")} </span>
+                ))}
+              </p>
+            </Col>
+          </Row>
+        )}
       </Container>
     </div>
   );

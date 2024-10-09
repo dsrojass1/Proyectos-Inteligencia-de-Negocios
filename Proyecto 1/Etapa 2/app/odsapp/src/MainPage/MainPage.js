@@ -2,8 +2,10 @@ import React from "react";
 import { Button, Container, Col } from "react-bootstrap";
 import "./MainPage.css";
 import backgroundImage from "../assets/back.png";
+import { useNavigate } from "react-router-dom";
 
 function MainPage() {
+  const navigate = useNavigate();
   return (
     <Container
       fluid
@@ -32,7 +34,12 @@ function MainPage() {
             Caracterizar
           </Button>
           <br></br>
-          <Button variant="secondary" className="me-3" id="blanco">
+          <Button
+            variant="secondary"
+            className="me-3"
+            id="blanco"
+            onClick={() => navigate("/reentrenamiento")}
+          >
             Reentrenar
           </Button>
         </div>
