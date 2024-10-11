@@ -1,0 +1,80 @@
+/* Estilos del contenedor principal */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #4A90E2;
+    overflow: auto;
+  }
+  
+  /* Estilos del elemento box */
+  .box {
+    background-color: #4CAF50;
+    padding: 20px;
+    border-radius: 10px;
+    width: 70%;
+    height: 85%;
+    text-align: center;
+    overflow: auto;
+  }
+  
+  /* Estilos del botón de regreso */
+  .buttonBack {
+    background-color: #ECECEC;
+    border: none;
+    padding: 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin: 20px;
+  }
+  
+  /* Estilos del título */
+  .title {
+    color: white;
+    margin-bottom: 20px;
+  }
+  
+  /* Estilos de las etiquetas */
+  .label {
+    color: white;
+    display: block;
+    margin-bottom: 10px;
+    font-size: larger;
+  }
+  
+  /* Estilos del área de texto */
+  .textarea {
+    width: 90%;
+    height: 100px;
+    border-radius: 10px;
+    padding: 10px;
+    border: none;
+    margin-bottom: 10px;
+  }
+  
+  /* Estilos del botón */
+  .button {
+    background-color: #ECECEC;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin: 10px;
+  }
+
+  .button:hover {
+    background-color: #D5D5D5;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Estilos del formulario de archivo */
+  .formFile {
+    margin-top: 20px;
+  }
+  
+  /* Estilos de la entrada de archivo */
+  .fileInput {
+    margin-bottom: 10px;
+    margin: 10px;
+  }

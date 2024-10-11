@@ -17,8 +17,8 @@ const ResultadosCaract = ({ predictions }) => {
     datasets: [{
       label: 'Resultado de Predicción (SDG)',
       data: predictions, // Los valores de SDG obtenidos
-      backgroundColor: 'rgba(75, 192, 192, 0.6)',
-      borderColor: 'rgba(75, 192, 192, 1)',
+      backgroundColor: 'rgba(	74, 144, 226, 0.7)',
+      borderColor: 'rgba(	74, 144, 226, 1)',
       borderWidth: 1,
     }]
   };
@@ -26,6 +26,7 @@ const ResultadosCaract = ({ predictions }) => {
   return (
     <div>
       <h3>Gráfico de Predicciones por Instancia</h3>
+      <div className="div_grafico">
       <Bar
         data={dataForChart}
         options={{
@@ -52,6 +53,7 @@ const ResultadosCaract = ({ predictions }) => {
           }
         }}
       />
+      </div>
     </div>
   );
 };

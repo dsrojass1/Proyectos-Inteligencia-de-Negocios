@@ -1,24 +1,25 @@
 import React, { useState } from "react";
-import { Button, Container, Row, Col } from "react-bootstrap";
-import "./Caracterizacion.css";
+import Papa from "papaparse";
 import MainPage from "../MainPage/MainPage";
 import ResultadosCaract from "../ResultadosCaract/ResultadosCaract";
-import Papa from "papaparse";
+import "./Caracterizacion.css";
 
 function Caracterizacion() {
+
   const [showMain, setShowMain] = useState(false);
   const [text, setText] = useState("");
   const [file, setFile] = useState(null);
 
   const [modifiedCsv, setModifiedCsv] = useState(null);
   const [predictions, setPredictions] = useState([]);
-
+  const [showGraph, setShowGraph] = useState(false);
+  const [responseReceived, setResponseReceived] = useState(false);
 
   const handleShowMain = () => {
     setShowMain(!showMain);
   };
 
-  const handleTextChange = async (e) => {
+  const handleTextChange = (e) => {
     setText(e.target.value);
   };
 
@@ -29,22 +30,40 @@ function Caracterizacion() {
   const handleSubmitText = async (e) => {
     e.preventDefault();
     if (text.length > 0) {
-      console.log(text);
-      try {
-        const respuesta = await fetch('http://127.0.0.1:8000/predict', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify([{ "Textos_espanol": [text] }]),
-        });
-        const datos = await respuesta.json();
-        console.log(datos);
+      const lines = text.split('\n').filter(line => line.trim() !== "");
 
-        setText("");
+      if (lines.length > 0) {
+        const jsonData = [
+          {
+            Textos_espanol: lines
+          }
+        ];
 
-      } catch (error) {
-        console.error(error);
+        try {
+          const respuesta = await fetch('http://127.0.0.1:8000/predict', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(jsonData),
+          });
+          const datos = await respuesta.json();
+          console.log(datos);
+
+          // Generar CSV a partir del texto y las predicciones recibidas
+          const modifiedData = lines.map((line, index) => [line, datos.sdg[index]]);
+          modifiedData.unshift(["Textos_espanol", "sdg"]);
+          const csvWithSDG = Papa.unparse(modifiedData);
+
+          setModifiedCsv(csvWithSDG);
+
+          setText("");
+          setPredictions(datos.sdg); 
+          setResponseReceived(true); 
+
+        } catch (error) {
+          console.error(error);
+        }
       }
     } else {
       console.log('No se ha ingresado ningún texto');
@@ -54,24 +73,21 @@ function Caracterizacion() {
 
   const handleSubmitFile = (e) => {
     e.preventDefault();
-    // Aquí puedes manejar la caracterización del archivo cargado
     if (file) {
       console.log('Archivo cargado:', file);
 
       Papa.parse(file, {
+        delimiter: ";",
         header: false, // Como no tiene encabezado, lo configuramos en 'false'
         complete: function (results) {
-          // Obtener los textos del CSV
-          const texts = results.data.map(row => row[0]); // Obtiene la primera (y única) columna
+          const texts = results.data.map(row => row[0]);
 
-          // Crear el formato JSON
           const jsonData = [
             {
               Textos_espanol: texts
             }
           ];
 
-          // Enviar el JSON al API
           fetch("http://localhost:8000/predict", {
             method: "POST",
             headers: {
@@ -81,21 +97,12 @@ function Caracterizacion() {
           })
             .then((response) => response.json())
             .then((data) => {
-              console.log("Respuesta del API:", data);
-
               setPredictions(data.sdg);
-
-              // Agregar la columna 'sdg' a los datos del CSV original
               const modifiedData = results.data.map((row, index) => [...row, data.sdg[index]]);
-
-              // Agregar los encabezados de columna
               modifiedData.unshift(["Textos_espanol", "sdg"]);
-
-              // Convertir de vuelta a CSV
               const csvWithSDG = Papa.unparse(modifiedData);
-
-              // Guardar el CSV modificado en el estado
               setModifiedCsv(csvWithSDG);
+              setResponseReceived(true); 
 
             })
             .catch((error) => {
@@ -105,11 +112,9 @@ function Caracterizacion() {
       });
 
     } else {
-      console.log('No se ha cargado ningún archivo');
       alert('No se ha cargado ningún archivo');
     }
   };
-
 
   const handleDownload = () => {
     const blob = new Blob([modifiedCsv], { type: "text/csv;charset=utf-8;" });
@@ -123,124 +128,71 @@ function Caracterizacion() {
     document.body.removeChild(link);
   };
 
+  const handleShowGraph = () => {
+    setShowGraph(!showGraph);
+    setResponseReceived(false);
+  };
 
   if (showMain) {
-
+    return <MainPage />;
+  } else if (!showMain && !showGraph) {
     return (
-      <MainPage />
-
-    );
-
-  } else {
-
-    return (
-      <div style={styles.container}>
-        <div style={styles.box}>
-          <button style={styles.buttonBack} onClick={handleShowMain}>Página principal</button>
-          <h2 style={styles.title}>CARACTERIZACIÓN</h2>
+      <div className="container">
+        <div className="box">
+          <button className="button" onClick={handleShowMain}>Página principal</button>
+          <h2 className="title">CARACTERIZACIÓN</h2>
           <form onSubmit={handleSubmitText}>
-            <label style={styles.label}>Escribe el texto que deseas caracterizar:</label>
+            <label className="label">Escribe el texto que deseas caracterizar:</label>
             <textarea
-              style={styles.textarea}
+              className="textarea"
               value={text}
               onChange={handleTextChange}
+              placeholder="Escribe cada opinión en una nueva línea..."
             />
-            <button type="submit" style={styles.button}>Enviar</button>
+            <br />
+            <button type="submit" className="button">Enviar</button>
           </form>
 
-          <form onSubmit={handleSubmitFile} style={styles.formFile}>
-            <label style={styles.label}>
-              O sube un archivo CSV con una columna sin encabezados en el que cada registro coincida con una opinión a caracterizar:
+          <form onSubmit={handleSubmitFile} className="form-file">
+            <label className="label">
+              O sube un archivo CSV con una columna sin encabezados en el que cada fila coincida con una opinión a caracterizar:
             </label>
             <input
               type="file"
               accept=".xlsx, .xls, .csv"
               onChange={handleFileChange}
-              style={styles.fileInput}
+              className="file-input"
             />
-            <button type="submit" style={styles.button}>Enviar</button>
+            <button type="submit" className="button">Enviar</button>
           </form>
 
           <br />
 
-          {modifiedCsv && (
-            <button style={styles.button} onClick={handleDownload}>Descargar CSV con la caracterización</button>
+          {responseReceived && (
+            <button className="button" onClick={handleDownload}>Descargar CSV con la caracterización</button>
           )}
 
-          {modifiedCsv && (
-            <button style={styles.button} onClick={handleDownload}>Visualizar resultados</button>
-
+          {responseReceived && (
+            <button className="button" onClick={handleShowGraph}>Visualizar resultados</button>
           )}
-
-          {/* Mostrar el componente de visualización si hay predicciones */}
-          {predictions.length > 0 && <ResultadosCaract predictions={predictions} />}
 
         </div>
       </div>
     );
-
+  } else if (!showMain && showGraph) {
+    return (
+      <div className="container">
+        <div className="box">
+          <button className="button" onClick={handleShowMain}>Página principal</button>
+          <button className="button" onClick={handleShowGraph}>Realizar otra caracterización</button>
+          <button className="button" onClick={handleDownload}>Descargar CSV con la caracterización</button>
+          <h2 className="title">VISUALIZACIÓN DE LA CARACTERIZACIÓN</h2>
+          {predictions.length > 0 && <ResultadosCaract predictions={predictions} />}
+        </div>
+      </div>
+    );
   }
 }
 
-
-
-const styles = {
-  container: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    backgroundColor: '#4A90E2',
-    overflow: 'auto',
-  },
-  box: {
-    backgroundColor: '#4CAF50',
-    padding: '20px',
-    borderRadius: '10px',
-    width: '70%',
-    textAlign: 'center',
-    overflow: 'auto',
-  },
-  buttonBack: {
-    backgroundColor: '#ECECEC',
-    border: 'none',
-    padding: '10px',
-    borderRadius: '20px',
-    cursor: 'pointer',
-    marginBottom: '20px',
-  },
-  title: {
-    color: 'white',
-    marginBottom: '20px',
-  },
-  label: {
-    color: 'white',
-    display: 'block',
-    marginBottom: '10px',
-  },
-  textarea: {
-    width: '100%',
-    height: '100px',
-    borderRadius: '10px',
-    padding: '10px',
-    border: 'none',
-    marginBottom: '10px',
-  },
-  button: {
-    backgroundColor: '#ECECEC',
-    border: 'none',
-    padding: '10px 20px',
-    borderRadius: '20px',
-    cursor: 'pointer',
-    margin: '10px',
-  },
-  formFile: {
-    marginTop: '20px',
-  },
-  fileInput: {
-    //   marginBottom: '10px',
-    margin: '10px',
-  }
-};
-
 export default Caracterizacion;
+
