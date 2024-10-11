@@ -137,7 +137,7 @@ function Caracterizacion() {
     return <MainPage />;
   } else if (!showMain && !showGraph) {
     return (
-      <div className="container">
+      <div className="container-caracterizacion">
         <div className="box">
           <button className="button" onClick={handleShowMain}>Página principal</button>
           <h2 className="title">CARACTERIZACIÓN</h2>
@@ -181,7 +181,7 @@ function Caracterizacion() {
     );
   } else if (!showMain && showGraph) {
     return (
-      <div className="container">
+      <div className="container-caracterizacion">
         <div className="box">
           <button className="button" onClick={handleShowMain}>Página principal</button>
           <button className="button" onClick={handleShowGraph}>Realizar otra caracterización</button>
