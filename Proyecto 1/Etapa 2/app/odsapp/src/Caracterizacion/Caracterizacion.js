@@ -9,9 +9,10 @@ function Caracterizacion() {
   const [showMain, setShowMain] = useState(false);
   const [text, setText] = useState("");
   const [file, setFile] = useState(null);
-
   const [modifiedCsv, setModifiedCsv] = useState(null);
   const [predictions, setPredictions] = useState([]);
+  const [probabilities, setProbabilities] = useState([]);
+  const [texts, setTexts] = useState([]);
   const [showGraph, setShowGraph] = useState(false);
   const [responseReceived, setResponseReceived] = useState(false);
 
@@ -50,16 +51,15 @@ function Caracterizacion() {
           const datos = await respuesta.json();
           console.log(datos);
 
-          // Generar CSV a partir del texto y las predicciones recibidas
           const modifiedData = lines.map((line, index) => [line, datos.sdg[index]]);
           modifiedData.unshift(["Textos_espanol", "sdg"]);
           const csvWithSDG = Papa.unparse(modifiedData);
 
           setModifiedCsv(csvWithSDG);
-
-          setText("");
-          setPredictions(datos.sdg); 
-          setResponseReceived(true); 
+          setTexts(lines);
+          setPredictions(datos.sdg);
+          setProbabilities(datos.probabilities);
+          setResponseReceived(true);
 
         } catch (error) {
           console.error(error);
@@ -78,7 +78,7 @@ function Caracterizacion() {
 
       Papa.parse(file, {
         delimiter: ";",
-        header: false, // Como no tiene encabezado, lo configuramos en 'false'
+        header: false,
         complete: function (results) {
           const texts = results.data.map(row => row[0]);
 
@@ -98,11 +98,14 @@ function Caracterizacion() {
             .then((response) => response.json())
             .then((data) => {
               setPredictions(data.sdg);
+              setProbabilities(data.probabilities);
+              setTexts(texts);
+
               const modifiedData = results.data.map((row, index) => [...row, data.sdg[index]]);
               modifiedData.unshift(["Textos_espanol", "sdg"]);
               const csvWithSDG = Papa.unparse(modifiedData);
               setModifiedCsv(csvWithSDG);
-              setResponseReceived(true); 
+              setResponseReceived(true);
 
             })
             .catch((error) => {
@@ -110,7 +113,6 @@ function Caracterizacion() {
             });
         },
       });
-
     } else {
       alert('No se ha cargado ningún archivo');
     }
@@ -131,6 +133,7 @@ function Caracterizacion() {
   const handleShowGraph = () => {
     setShowGraph(!showGraph);
     setResponseReceived(false);
+    setText("");
   };
 
   if (showMain) {
@@ -175,7 +178,6 @@ function Caracterizacion() {
           {responseReceived && (
             <button className="button" onClick={handleShowGraph}>Visualizar resultados</button>
           )}
-
         </div>
       </div>
     );
@@ -187,7 +189,9 @@ function Caracterizacion() {
           <button className="button" onClick={handleShowGraph}>Realizar otra caracterización</button>
           <button className="button" onClick={handleDownload}>Descargar CSV con la caracterización</button>
           <h2 className="title">VISUALIZACIÓN DE LA CARACTERIZACIÓN</h2>
-          {predictions.length > 0 && <ResultadosCaract predictions={predictions} />}
+          {predictions.length > 0 && (
+            <ResultadosCaract predictions={predictions} probabilities={probabilities} texts={texts} />
+          )}
         </div>
       </div>
     );
@@ -195,4 +199,3 @@ function Caracterizacion() {
 }
 
 export default Caracterizacion;
-

@@ -1,11 +1,51 @@
 .div_grafico {
     background-color: white;
     border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
 h3 {
     color: white;
     font-weight: 700;
-    margin-bottom: 50px;
-    margin-top: 50px;
+    margin-bottom: 30px;
+    margin-top: 30px;
+}
+
+.table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+.result-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border: 2px solid white; 
+}
+
+.result-table th, .result-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border: 1px solid white; 
+}
+
+.result-table th {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+}
+
+.result-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.result-table tr:hover {
+    background-color: #e0e0e0;
+}
+
+.result-table td {
+    color: #333;
 }
